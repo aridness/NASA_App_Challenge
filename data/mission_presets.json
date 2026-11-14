@@ -1,0 +1,38 @@
+[
+  {
+    "id": "iss_standard",
+    "name": "ISS Standard",
+    "gravity_regime": "0g (Microgravity)",
+    "o2_percent": 21.0,
+    "pressure_psi": 14.7,
+    "airflow_cm_s": 10.0,
+    "description": "Nominal International Space Station cabin atmosphere (1 atm air, continuous ventilation)."
+  },
+  {
+    "id": "lunar_habitat",
+    "name": "Lunar Habitat / Pressurized Rover",
+    "gravity_regime": "1/6g Bounded (0g–1g)",
+    "o2_percent": 32.0,
+    "pressure_psi": 10.2,
+    "airflow_cm_s": 15.0,
+    "description": "NASA Exploration Atmosphere for Lunar surface habitats and pressurized rovers."
+  },
+  {
+    "id": "mars_habitat",
+    "name": "Mars Habitat / Transit",
+    "gravity_regime": "3/8g Bounded (0g–1g)",
+    "o2_percent": 34.0,
+    "pressure_psi": 8.2,
+    "airflow_cm_s": 12.0,
+    "description": "NASA 8.2 psi / 34% O2 exploration atmosphere matching ACME-BRE reduced-pressure test points."
+  },
+  {
+    "id": "apollo1_mir_stress",
+    "name": "Historical Failure — Apollo 1 / Mir 1997",
+    "gravity_regime": "1g / 0g Stress Benchmark",
+    "o2_percent": 50.0,
+    "pressure_psi": 14.7,
+    "airflow_cm_s": 25.0,
+    "description": "High-O2, elevated-flow stress benchmark illustrating rapid flame spread beyond nominal bounds."
+  }
+]

@@ -1,4 +1,7 @@
-data/*/
+/NASA/
+__pycache__/
+*.py[cod]
+data/raw/
 sandbox.ipynb
-NASA
 desktop.ini
+.env

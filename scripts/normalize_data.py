@@ -1,10 +1,12 @@
 import json
-import os
 import re
+from pathlib import Path
 import pandas as pd
 
-BASE_DIR = r"C:\Users\Ariele\Desktop\NASA\data"
-OUTPUT_PATH = os.path.join(BASE_DIR, "psi_solid_flammability.json")
+ROOT_DIR = Path(__file__).resolve().parents[1]  # C:\Users\Ariele\Desktop\NASA
+DATA_DIR = ROOT_DIR / "data"
+RAW_DIR = DATA_DIR / "raw"
+OUTPUT_PATH = DATA_DIR / "psi_solid_flammability.json"
 
 SENSORS_MAP = {
     "BASS": ["Radiometer", "Thermocouples", "HD Video", "Digital Still Camera"],
@@ -17,6 +19,7 @@ SENSORS_MAP = {
 # Reference 1g spread rates (mm/s) from PSI Researcher's Guides / SRDs
 BASELINE_1G_LOOKUP = {
     ("Cotton/Fiberglass Blend", 0.37): 14.2,
+    ("Cotton/Fiberglass Blend", 1.0): 8.5,
     ("Cotton/Fiberglass Blend", 3.30): 4.5,
     ("PMMA (Cast Acrylic)", 0.10): 2.8,
     ("PMMA (Cast Acrylic)", 0.20): 1.9,
@@ -34,7 +37,6 @@ BASELINE_1G_LOOKUP = {
     ("Silicone", 0.27): 0.8,
     ("Silicone", 0.37): 0.6,
     ("Silicone", 0.61): 1.2,
-    ("Cotton/Fiberglass Blend", 1.0): 8.5
 }
 
 
@@ -42,7 +44,6 @@ def parse_first_float(val, default=None):
     if pd.isna(val):
         return default
     s = str(val).strip()
-    # Fix NASA missing decimal typo (e.g., "037 mm" -> "0.37 mm")
     if re.match(r"^0\d{2,}\b", s):
         s = "0." + s[1:]
     match = re.search(r"[-+]?\d*\.\d+|\d+", s)
@@ -53,7 +54,6 @@ def normalize_material(raw):
     if pd.isna(raw):
         return None
     s = str(raw).lower()
-    # Exclude non-planar / non-solid geometries (candles, spheres, cylindrical rods)
     if any(k in s for k in ["candle", "wax", "sphere", "rod"]):
         return "EXCLUDE"
     if "pmma" in s and "nomex" in s:
@@ -81,7 +81,7 @@ def parse_thickness_mm(raw_thick, raw_mat="", is_saffire1=False):
             if is_saffire1 and abs(val - 0.37) < 1e-4:
                 return 0.37
             return round(val * 10.0, 3) if ("cm" in s or is_saffire1) else round(val, 3)
-    
+
     mat_s = str(raw_mat).lower()
     if "sibal" in mat_s or "cotton" in mat_s or "nomex" in mat_s:
         return 0.37
@@ -91,7 +91,7 @@ def parse_thickness_mm(raw_thick, raw_mat="", is_saffire1=False):
     m_mm = re.search(r"(\d+(?:\.\d+)?)\s*mm", mat_s)
     if m_mm:
         return round(float(m_mm.group(1)), 3)
-    return None  # Never fall back to 0.37 mm for non-SIBAL materials
+    return None
 
 
 def classify_outcome_from_notes(notes):
@@ -109,7 +109,7 @@ def load_saffire_all():
     records = []
 
     # --- SAFFIRE-I (2 runs) ---
-    df1 = pd.read_csv(os.path.join(BASE_DIR, "SAFFIRE-I", "PSI-98_Experimental table_SAFFIRE-1.csv"))
+    df1 = pd.read_csv(RAW_DIR / "SAFFIRE-I" / "PSI-98_Experimental table_SAFFIRE-1.csv")
     df1.columns = df1.columns.str.strip()
     df1 = df1[df1["Sample Number"].astype(str).str.match(r"^S\d+$")]
     for _, r in df1.iterrows():
@@ -117,7 +117,6 @@ def load_saffire_all():
         thick = parse_thickness_mm(r["Sample Thickness (cm)"], r["Material"], is_saffire1=True)
         flow_dir = "Concurrent" if "conc" in str(r["Flow Direction"]).lower() else "Opposed"
         burn_s = parse_first_float(r["Burn Time (s)"])
-        # Sample length is 940 mm (40.6 x 94.0 cm)
         spread_rate = round(940.0 / burn_s, 2) if (burn_s and flow_dir == "Concurrent") else 1.65
         records.append({
             "investigation_id": "SAFFIRE-I",
@@ -136,10 +135,10 @@ def load_saffire_all():
         })
 
     # --- SAFFIRE-II (9 runs) ---
-    df2 = pd.read_csv(os.path.join(BASE_DIR, "SAFFIRE-II", "PSI-99_Experimental table_SAFFIRE-2.csv"))
+    df2 = pd.read_csv(RAW_DIR / "SAFFIRE-II" / "PSI-99_Experimental table_SAFFIRE-2.csv")
     df2.columns = df2.columns.str.strip()
     df2 = df2[df2["Sample Number"].astype(str).str.match(r"^2-\d+$")].copy()
-    df2["Material"] = df2["Material"].ffill()  # Fills duplicate rows 2-6 (SIBAL) and 2-9 (PMMA)
+    df2["Material"] = df2["Material"].ffill()
 
     for _, r in df2.iterrows():
         sample_id = str(r["Sample Number"]).strip()
@@ -153,12 +152,12 @@ def load_saffire_all():
             spread_rate = None
         elif "note 4" in spread_col.lower():
             outcome = "Ignited - Sustained Spread"
-            spread_rate = 0.025  # Footnote 4: 0.01 to 0.04 mm/s anchored regression
+            spread_rate = 0.025
         else:
             outcome = "Ignited - Sustained Spread"
             spread_rate = parse_first_float(spread_col)
 
-        one_g = parse_first_float(r["1-g Spread Rate"])  # "Acceleratory" -> None
+        one_g = parse_first_float(r["1-g Spread Rate"])
         if one_g is None:
             one_g = BASELINE_1G_LOOKUP.get((mat, thick))
 
@@ -179,7 +178,7 @@ def load_saffire_all():
         })
 
     # --- SAFFIRE-III (2 runs) ---
-    df3 = pd.read_csv(os.path.join(BASE_DIR, "SAFFIRE-III", "PSI-100_Experimental table_SAFFIRE-3.csv"))
+    df3 = pd.read_csv(RAW_DIR / "SAFFIRE-III" / "PSI-100_Experimental table_SAFFIRE-3.csv")
     df3.columns = df3.columns.str.strip()
     df3 = df3[df3["Sample Number"].astype(str).str.match(r"^S\d+$")]
     for _, r in df3.iterrows():
@@ -205,8 +204,8 @@ def load_saffire_all():
     return records
 
 
-def load_bass(target_count=12):
-    xl_path = os.path.join(BASE_DIR, "BASS", "BASS test matrix.xlsx")
+def load_bass(target_count=18):
+    xl_path = RAW_DIR / "BASS" / "BASS test matrix.xlsx"
     df = pd.read_excel(xl_path, sheet_name="as run matrix", header=2)
     df.columns = df.columns.str.strip()
 
@@ -215,9 +214,10 @@ def load_bass(target_count=12):
     df["norm_mat"] = df["material"].apply(normalize_material)
     df["thick"] = df["material"].apply(lambda m: parse_thickness_mm(None, m))
 
-    # Keep only planar sheet/fabric runs with known thickness
-    df = df[df["norm_mat"].isin(["Cotton/Fiberglass Blend", "PMMA (Cast Acrylic)", "Nomex", "Silicone"]) & df["thick"].notna()]
-    # Add in load_bass() right before df.sample(...):
+    df = df[
+        df["norm_mat"].isin(["Cotton/Fiberglass Blend", "PMMA (Cast Acrylic)", "Nomex", "Silicone"])
+        & df["thick"].notna()
+    ]
     df = df.drop_duplicates(subset=["As run test no.", "Test no.", "Sample no."], keep="last")
     sampled = df.sample(n=min(target_count, len(df)), random_state=42)
 
@@ -250,8 +250,8 @@ def load_bass(target_count=12):
     return records
 
 
-def load_bass_ii(per_pi=6):
-    csv_path = os.path.join(BASE_DIR, "BASS-II", "PSI-25_Experimental table_BASS-II.csv")
+def load_bass_ii(per_pi=4):
+    csv_path = RAW_DIR / "BASS-II" / "PSI-25_Experimental table_BASS-II.csv"
     df = pd.read_csv(csv_path)
     df.columns = df.columns.str.strip()
 
@@ -281,7 +281,6 @@ def load_bass_ii(per_pi=6):
         co2_i = parse_first_float(r[init_co2_col], 0.0)
         co2_f = parse_first_float(r[fin_co2_col], None)
 
-        # Only classify from gas delta when final gas telemetry is actually present
         if o2_f is not None and co2_f is not None:
             delta_o2 = o2_i - o2_f
             delta_co2 = co2_f - co2_i
@@ -311,12 +310,12 @@ def load_bass_ii(per_pi=6):
         })
     return records
 
+
 def load_acme_bre(target_count=10):
-    csv_path = os.path.join(BASE_DIR, "ACME_BRE", "PSI-20_Experimental table_ACME BRE.csv")
+    csv_path = RAW_DIR / "ACME_BRE" / "PSI-20_Experimental table_ACME BRE.csv"
     df = pd.read_csv(csv_path)
     df.columns = df.columns.str.strip()
 
-    # Exact chamber pressure pairings documented in BRE_data_interpretation_20220804.pdf (p. 4)
     O2_TO_PRESSURE_PSI = {
         21.0: 14.7,
         25.0: 10.2,
@@ -325,23 +324,20 @@ def load_acme_bre(target_count=10):
         40.0: 8.2,
     }
 
-    # Expand semicolon-separated O2 concentrations per test date into individual representative points
     expanded = []
-    for idx, r in df.iterrows():
+    for _, r in df.iterrows():
         raw_o2_str = str(r["Oxygen Conc (percent)"]).strip()
         ignited_cnt = int(parse_first_float(r["Flames Ignited"], 0))
         burner_mm = int(parse_first_float(r["Burner Size (mm)"], 25))
         fuel_bottle = str(r["Fuel Bottle"]).strip().replace(" ", "")
         date_tag = f"{r['Year']}-{str(r['Month']).strip()[:3]}-{int(r['Date']):02d}"
 
-        # BRE gaseous fuel bottles emulate specific solid polymer classes (PMMA / cellulosics)
         mat = "Cotton/Fiberglass Blend" if "50%" in fuel_bottle else "PMMA (Cast Acrylic)"
 
         for part in raw_o2_str.split(";"):
             val = parse_first_float(part)
             if val is None:
                 continue
-            # Fix Excel percentage formatting artifact ("3400%" -> 34.0, "2100%" -> 21.0)
             if val >= 100.0:
                 val = val / 100.0
             o2_pct = round(val, 1)
@@ -365,7 +361,7 @@ def load_acme_bre(target_count=10):
                 "airflow_cm_s": 5.0 if burner_mm == 25 else 10.0,
                 "flow_direction": "Opposed",
                 "outcome": outcome,
-                "flame_spread_rate_mm_s": None,  # BRE measures gaseous mass-burning extinction limits, not linear spread
+                "flame_spread_rate_mm_s": None,
                 "sensors": [
                     "Radiometer",
                     "Thermocouples",
@@ -376,7 +372,6 @@ def load_acme_bre(target_count=10):
                 "earth_1g_baseline_spread_mm_s": BASELINE_1G_LOOKUP.get((mat, 1.0)),
             })
 
-    # Deduplicate by (material, o2_percent, pressure_psi, airflow_cm_s) and sample 10 representative runs
     dedup = []
     seen = set()
     for rec in expanded:
@@ -385,10 +380,10 @@ def load_acme_bre(target_count=10):
             seen.add(sig)
             dedup.append(rec)
 
-    # Ensure the 21% O2 No-Ignition run and high-O2 (26.5%, 34%, 40%) runs are included
     no_ign = [r for r in dedup if r["outcome"] == "No Ignition"]
     others = [r for r in dedup if r["outcome"] != "No Ignition"]
     return (no_ign + others[: target_count - len(no_ign)])[:target_count]
+
 
 def main():
     master_dataset = []
@@ -397,7 +392,6 @@ def main():
     master_dataset.extend(load_bass_ii(4))     # 15 small-sample runs (BASS-II)
     master_dataset.extend(load_acme_bre())     # 10 exploration-atmosphere runs (ACME-BRE)
 
-    # Deduplicate after string normalization (overwrites earlier duplicate test_id, keeping final outcome)
     master_dataset = list({rec["test_id"]: rec for rec in master_dataset}.values())
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
