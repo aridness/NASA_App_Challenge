@@ -2,6 +2,7 @@ import json
 import os
 from google import genai
 from google.genai import types
+from google.oauth2 import service_account
 from backend.schemas import InterpretRequest, InterpretResponse, ModelingParameters
 
 SYSTEM_PROMPT = """You are a NASA spacecraft fire-safety combustion engineer.
@@ -15,7 +16,7 @@ STRICT GROUNDING RULES:
 5. In `earth_dual_use`, map the exact O2%/pressure/material threshold to terrestrial equivalents (clinical hyperbaric oxygen chambers, submarine atmospheres, or firefighter/industrial PPE)."""
 
 def _build_mock_brief(req: InterpretRequest) -> dict:
-    """Deterministic schema-valid fallback when GEMINI_API_KEY is unavailable."""
+    """Deterministic schema-valid fallback when credentials/API key are unavailable."""
     r1 = req.top_runs[0]
     ids = [r["test_id"] for r in req.top_runs[:3]]
     env = req.bounding_envelope
@@ -48,7 +49,22 @@ def generate_si_brief(req: InterpretRequest) -> dict:
     gcp_location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
     api_key = os.environ.get("GEMINI_API_KEY")
 
-    if not gcp_project and not api_key:
+    credentials = None
+    try:
+        import streamlit as st
+        if not gcp_project and "GOOGLE_CLOUD_PROJECT" in st.secrets:
+            gcp_project = st.secrets["GOOGLE_CLOUD_PROJECT"]
+        if "GOOGLE_CLOUD_LOCATION" in st.secrets:
+            gcp_location = st.secrets["GOOGLE_CLOUD_LOCATION"]
+        if "gcp_service_account" in st.secrets:
+            credentials = service_account.Credentials.from_service_account_info(
+                dict(st.secrets["gcp_service_account"]),
+                scopes=["https://www.googleapis.com/auth/cloud-platform"],
+            )
+    except Exception:
+        pass
+
+    if not gcp_project and not api_key and not credentials:
         return _build_mock_brief(req)
 
     compact_runs = [
@@ -83,15 +99,16 @@ def generate_si_brief(req: InterpretRequest) -> dict:
                 vertexai=True,
                 project=gcp_project,
                 location=gcp_location,
+                credentials=credentials,
                 http_options=types.HttpOptions(timeout=30_000),
             )
-            model_name = "gemini-3.8-flash"
         else:
             client = genai.Client(
                 api_key=api_key,
                 http_options=types.HttpOptions(timeout=30_000),
             )
-            model_name = "gemini-3.8-flash"
+        
+        model_name = "gemini-2.5-flash"
 
         response = client.models.generate_content(
             model=model_name,
