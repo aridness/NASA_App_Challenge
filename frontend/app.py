@@ -135,9 +135,9 @@ def render_scenario_asset(preset_id: str, o2: float, pressure: float, airflow: f
         st.image(str(image_path), use_container_width=True)
     else:
         st.markdown(
-            f"<div style='background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:6px;"
-            f"padding:22px 12px;text-align:center;color:#475569;font-size:0.78rem;'>"
-            f"<b>Custom Parametric Regime</b><br>Adjust sliders above to probe arbitrary cabin atmospheres</div>",
+            "<div style='background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:6px;"
+            "padding:22px 12px;text-align:center;color:#475569;font-size:0.78rem;'>"
+            "<b>Custom Parametric Regime</b><br>Adjust sliders above to probe arbitrary cabin atmospheres</div>",
             unsafe_allow_html=True,
         )
 
@@ -285,7 +285,7 @@ def show_si_brief_dialog(interpret_payload: dict):
 
 
 # -----------------------------------------------------------------------------
-# Execute Deterministic Ranker
+# Execute Deterministic Ranker & Dynamic Partial-g Envelope
 # -----------------------------------------------------------------------------
 flow_arg = None if st.session_state.flow_dir == "Any" else st.session_state.flow_dir
 results = rank_psi_runs(
@@ -298,9 +298,28 @@ results = rank_psi_runs(
     top_k=5,
 )
 top_runs = results["top_runs"]
-env = results["bounding_envelope"]
+cohort_env = results["bounding_envelope"]
 risk_pct = results["habitat_risk_index"]
 target_po2 = round((st.session_state.o2 / 100.0) * st.session_state.pressure, 2)
+
+# Derive Partial-g Envelope from Top-5 Matched Analogs (with Cohort Fallback)
+top_0g = [r["flame_spread_rate_mm_s"] for r in top_runs if r.get("flame_spread_rate_mm_s") is not None]
+top_1g = [r["earth_1g_baseline_spread_mm_s"] for r in top_runs if r.get("earth_1g_baseline_spread_mm_s") is not None]
+
+if top_0g or top_1g:
+    env = {
+        "zero_g_min_mm_s": round(min(top_0g), 3) if top_0g else cohort_env.get("zero_g_min_mm_s"),
+        "zero_g_max_mm_s": round(max(top_0g), 3) if top_0g else cohort_env.get("zero_g_max_mm_s"),
+        "earth_1g_min_mm_s": round(min(top_1g), 3) if top_1g else cohort_env.get("earth_1g_min_mm_s"),
+        "earth_1g_max_mm_s": round(max(top_1g), 3) if top_1g else cohort_env.get("earth_1g_max_mm_s"),
+        "sample_count_0g": len(top_0g),
+        "envelope_source": f"Top-{len(top_runs)} Matched Analogs",
+    }
+else:
+    env = {
+        **cohort_env,
+        "envelope_source": f"{st.session_state.material} Cohort Fallback (Top-{len(top_runs)} Proxy/No-Spread)",
+    }
 
 if risk_pct >= 70.0:
     risk_tier_label = "CRITICAL IGNITION RISK"
@@ -365,10 +384,11 @@ csv_fields = [
     "outcome",
     "exp_0g_spread_rate_mm_s",
     "earth_1g_baseline_spread_mm_s",
-    "cohort_0g_max_mm_s",
-    "cohort_lunar_1_6g_est_mm_s",
-    "cohort_mars_3_8g_est_mm_s",
-    "cohort_1g_max_mm_s",
+    "envelope_0g_max_mm_s",
+    "envelope_lunar_1_6g_est_mm_s",
+    "envelope_mars_3_8g_est_mm_s",
+    "envelope_1g_max_mm_s",
+    "envelope_source",
     "available_sensors",
 ]
 
@@ -405,10 +425,11 @@ for idx, run in enumerate(top_runs, start=1):
         "outcome": run["outcome"],
         "exp_0g_spread_rate_mm_s": run["flame_spread_rate_mm_s"] if run["flame_spread_rate_mm_s"] is not None else "",
         "earth_1g_baseline_spread_mm_s": run["earth_1g_baseline_spread_mm_s"] if run["earth_1g_baseline_spread_mm_s"] is not None else "",
-        "cohort_0g_max_mm_s": env["zero_g_max_mm_s"] if env["zero_g_max_mm_s"] is not None else "",
-        "cohort_lunar_1_6g_est_mm_s": lunar_est if env["zero_g_max_mm_s"] is not None else "",
-        "cohort_mars_3_8g_est_mm_s": mars_est if env["zero_g_max_mm_s"] is not None else "",
-        "cohort_1g_max_mm_s": env["earth_1g_max_mm_s"] if env["earth_1g_max_mm_s"] is not None else "",
+        "envelope_0g_max_mm_s": env["zero_g_max_mm_s"] if env["zero_g_max_mm_s"] is not None else "",
+        "envelope_lunar_1_6g_est_mm_s": lunar_est if env["zero_g_max_mm_s"] is not None else "",
+        "envelope_mars_3_8g_est_mm_s": mars_est if env["zero_g_max_mm_s"] is not None else "",
+        "envelope_1g_max_mm_s": env["earth_1g_max_mm_s"] if env["earth_1g_max_mm_s"] is not None else "",
+        "envelope_source": env.get("envelope_source", ""),
         "available_sensors": "; ".join(run.get("sensors", [])),
     })
 
@@ -544,7 +565,7 @@ with col_left:
 # ZONE 2: CENTER HERO STAGE (KPI Strip + Empirical Manifold + Partial-g Anchor)
 # =============================================================================
 with col_stage:
-    # 1. Top KPI Strip
+    # 1. Top KPI Strip (Risk Severity, PO2, and Top Analog Proximity & Scale)
     m1, m2, m3 = st.columns(3)
     with m1:
         with st.container(border=True):
@@ -572,20 +593,24 @@ with col_stage:
             )
     with m3:
         with st.container(border=True):
-            og_range = (
-                f"{env['zero_g_min_mm_s']}–{env['zero_g_max_mm_s']} mm/s"
-                if env["zero_g_max_mm_s"] is not None
-                else "N/A"
-            )
-            st.markdown(
-                f"<div style='display:flex;justify-content:space-between;align-items:center;'>"
-                f"<span style='font-size:0.74rem;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.04em;'>0g Microgravity Spread</span>"
-                f"<span class='badge badge-blue' style='margin-right:0;'>{env['sample_count_0g']} valid runs</span>"
-                f"</div>"
-                f"<div style='font-size:1.65rem;font-weight:700;color:#0f172a;margin-top:4px;'>{og_range}</div>"
-                f"<div style='font-size:0.78rem;color:#64748b;margin-top:2px;'>Cohort: {st.session_state.material}</div>",
-                unsafe_allow_html=True,
-            )
+            if top_runs:
+                best_run = top_runs[0]
+                match_pct = best_run["relevance_score"]
+                fidelity_badge_cls = "badge-green" if match_pct >= 70 else ("badge-amber" if match_pct >= 40 else "badge-red")
+                scale_short = (
+                    "Gaseous Proxy" if best_run.get("is_gaseous_proxy")
+                    else "Vehicle-Scale" if "Vehicle" in best_run.get("scale", "")
+                    else "Small-Scale MSG"
+                )
+                st.markdown(
+                    f"<div style='display:flex;justify-content:space-between;align-items:center;'>"
+                    f"<span style='font-size:0.74rem;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:0.04em;'>#1 Analog Fidelity</span>"
+                    f"<span class='badge {fidelity_badge_cls}' style='margin-right:0;'>{scale_short}</span>"
+                    f"</div>"
+                    f"<div style='font-size:1.65rem;font-weight:700;color:#0f172a;margin-top:4px;'>{match_pct}% Match</div>"
+                    f"<div style='font-size:0.78rem;color:#64748b;margin-top:2px;'>Driven by {best_run['investigation_id']} ({best_run['test_id']})</div>",
+                    unsafe_allow_html=True,
+                )
 
     # 2. Hero Empirical Data Manifold + Top-5 Matched Analogs
     with st.container(border=True):
@@ -602,14 +627,12 @@ with col_stage:
         y_field = "airflow_cm_s" if "Airflow" in y_axis_choice else "pressure_psi"
         target_y_val = st.session_state.airflow if y_field == "airflow_cm_s" else st.session_state.pressure
 
-        # Filter PSI records to active material/flow cohort so the manifold reflects real data coverage
         cohort_records = [
             r for r in unique_records
             if (st.session_state.material == "All" or r.get("material") == st.session_state.material)
             and (flow_arg is None or r.get("flow_direction") == flow_arg)
         ] or unique_records
 
-        # High-resolution 2D grid evaluating empirical proximity to NASA PSI experiments
         x_grid = [17.0 + i * (39.0 / 119.0) for i in range(120)]
         y_min_axis, y_max_axis = (-1.0, 32.0) if y_field == "airflow_cm_s" else (3.5, 16.0)
         y_grid = [y_min_axis + j * ((y_max_axis - y_min_axis) / 89.0) for j in range(90)]
@@ -639,7 +662,6 @@ with col_stage:
 
         fig = go.Figure()
 
-        # Direct two-color smooth gradient (Warm Amber -> Sky Cyan, no white stop)
         fig.add_trace(
             go.Heatmap(
                 x=x_grid,
@@ -796,7 +818,7 @@ with col_stage:
             "Shapes: ● BASS / BASS-II &nbsp; ■ Saffire &nbsp; ◆ ACME-BRE"
         )
 
-    # 3. Compact Partial-Gravity Bounding Envelope & #1 Analog Verdict
+    # 3. Dynamic Partial-Gravity Bounding Envelope & #1 Analog Verdict
     with st.container(border=True):
         scale_max = max(eg_max, og_max, 1.0)
         og_pct = min(100.0, round((og_max / scale_max) * 100.0, 1))
@@ -806,7 +828,8 @@ with col_stage:
 
         st.markdown(
             f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;'>"
-            f"<span style='font-size:0.86rem;font-weight:700;color:#0f172a;'>Partial-Gravity Flame Spread Envelope ({st.session_state.material} Cohort)</span>"
+            f"<span style='font-size:0.86rem;font-weight:700;color:#0f172a;'>Partial-Gravity Flame Spread Envelope "
+            f"<span style='font-weight:400;color:#64748b;font-size:0.78rem;'>({env['envelope_source']})</span></span>"
             f"<span style='font-size:0.80rem;color:#334155;'>"
             f"<span style='color:#0284c7;font-weight:600;'>■ 0g PSI Max: {og_max} mm/s</span> &nbsp;→&nbsp; "
             f"<b>Lunar (1/6g): ~{lunar_est}</b> &nbsp;|&nbsp; "

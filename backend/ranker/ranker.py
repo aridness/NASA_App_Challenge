@@ -87,14 +87,26 @@ def rank_psi_runs(
     )
     top_runs = scored[:top_k]
 
-    # Partial-Gravity Bounding Envelope across material-matched cohort
+    # Dynamic Partial-Gravity Bounding Envelope:
+    # Prioritize Top-K matched analogs so bounds respond dynamically to atmosphere changes,
+    # falling back to the material-matched cohort if Top-K are proxy/no-spread runs.
     cohort = [
         r for r in unique_records
         if (not target_material or target_material == "All" or r["material"] == target_material)
     ] or unique_records
 
-    og_rates = [r["flame_spread_rate_mm_s"] for r in cohort if r["flame_spread_rate_mm_s"] is not None]
-    eg_rates = [r["earth_1g_baseline_spread_mm_s"] for r in cohort if r["earth_1g_baseline_spread_mm_s"] is not None]
+    top_0g = [r["flame_spread_rate_mm_s"] for r in top_runs if r.get("flame_spread_rate_mm_s") is not None]
+    top_1g = [r["earth_1g_baseline_spread_mm_s"] for r in top_runs if r.get("earth_1g_baseline_spread_mm_s") is not None]
+
+    if top_0g or top_1g:
+        og_rates = top_0g if top_0g else [r["flame_spread_rate_mm_s"] for r in cohort if r.get("flame_spread_rate_mm_s") is not None]
+        eg_rates = top_1g if top_1g else [r["earth_1g_baseline_spread_mm_s"] for r in cohort if r.get("earth_1g_baseline_spread_mm_s") is not None]
+        envelope_source = f"Top-{len(top_runs)} Matched Analogs"
+    else:
+        og_rates = [r["flame_spread_rate_mm_s"] for r in cohort if r.get("flame_spread_rate_mm_s") is not None]
+        eg_rates = [r["earth_1g_baseline_spread_mm_s"] for r in cohort if r.get("earth_1g_baseline_spread_mm_s") is not None]
+        mat_label = target_material if target_material else "All"
+        envelope_source = f"{mat_label} Cohort Fallback (Top-{len(top_runs)} Proxy/No-Spread)"
 
     # Similarity-weighted hazard index across Top-K
     weight_sum = sum(r["relevance_score"] for r in top_runs) or 1.0
@@ -106,10 +118,11 @@ def rank_psi_runs(
         "top_runs": top_runs,
         "habitat_risk_index": round(weighted_risk * 100, 1),
         "bounding_envelope": {
-            "zero_g_min_mm_s": min(og_rates) if og_rates else None,
-            "zero_g_max_mm_s": max(og_rates) if og_rates else None,
-            "earth_1g_min_mm_s": min(eg_rates) if eg_rates else None,
-            "earth_1g_max_mm_s": max(eg_rates) if eg_rates else None,
+            "zero_g_min_mm_s": round(min(og_rates), 3) if og_rates else None,
+            "zero_g_max_mm_s": round(max(og_rates), 3) if og_rates else None,
+            "earth_1g_min_mm_s": round(min(eg_rates), 3) if eg_rates else None,
+            "earth_1g_max_mm_s": round(max(eg_rates), 3) if eg_rates else None,
             "sample_count_0g": len(og_rates),
+            "envelope_source": envelope_source,
         },
     }
