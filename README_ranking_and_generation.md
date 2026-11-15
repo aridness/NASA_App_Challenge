@@ -10,7 +10,7 @@ Work completed in Phase 2 covers **deterministic proximity scoring, offline retr
 
 1. **Physics-Informed Proximity & Bounding Engine (`backend/ranker/ranker.py`):** Implemented a bounded `(0, 100]` heavy-tailed Rational Quadratic ranker incorporating oxygen partial pressure ($P_{\text{O}_2}$), stratified material matching, fidelity tie-breaking, similarity-weighted hazard scoring, and cohort-level partial-gravity envelope aggregation.
 2. **Offline Information Retrieval & Concordance Benchmark (`backend/ranker/benchmark.py`):** Validated the ranking function against a baseline linear L1 formula across all 16 mission preset $\times$ material combinations (`Precision@3 = 1.00`) and Leave-One-Out (LOO) ignition outcome concordance (`Sustained-Spread F1 = 0.827`).
-3. **Constrained "SI" Interpreter & Citation Auditor (`backend/interpreter.py`, `backend/schemas.py`):** Configured structured JSON synthesis via `gemini-2.5-flash` with Pydantic schema enforcement, deterministic `test_id` post-verification, and an offline deterministic fallback (`_build_mock_brief`) for key-free local testing.
+3. **Constrained "SI" Interpreter & Citation Auditor (`backend/interpreter.py`, `backend/schemas.py`):** Configured structured JSON synthesis via `gemini-3.8-flash` with Pydantic schema enforcement, deterministic `test_id` post-verification, and an offline deterministic fallback (`_build_mock_brief`) for key-free local testing.
 4. **FastAPI Service Layer & Automated Smoke Tests (`backend/main.py`, `tests/test_api.py`):** Exposed four REST endpoints (`/api/presets`, `/api/dataset`, `/api/rank`, `/api/interpret`) and verified end-to-end schema and citation integrity across all 55 unique PSI records and 4 mission presets.
 
 ---
@@ -117,7 +117,7 @@ Each of the 55 unique records is held out as a query against the remaining 54 re
 
 ### Grounding Guardrails & Offline Fallback (`backend/interpreter.py`)
 
-* **Structured Output Enforcement:** Calls `gemini-2.5-flash` (`temperature=0.1`) with `response_mime_type="application/json"` and `response_schema=InterpretResponse` (`schemas.py`), guaranteeing exact field structure (`engineering_summary` with 3 bullets, `modeling_parameters`, `earth_dual_use`, and `cited_test_ids`).
+* **Structured Output Enforcement:** Calls `gemini-3.8-flash` (`temperature=0.1`) with `response_mime_type="application/json"` and `response_schema=InterpretResponse` (`schemas.py`), guaranteeing exact field structure (`engineering_summary` with 3 bullets, `modeling_parameters`, `earth_dual_use`, and `cited_test_ids`).
 * **Anti-Hallucination & Null-Rate Rules:** The system prompt requires `[investigation_id | test_id]` citations for every claim, prohibits fabricating linear spread rates when `flame_spread_rate_mm_s` is `null`, and forces explicit cross-match comparison across `thickness_mm`, `flow_direction`, `scale`, and `po2_psi`.
 * **Deterministic Citation Post-Check:** Every returned string in `cited_test_ids` is intersected against the exact `test_id` set passed in `req.top_runs`, stripping ungrounded IDs and setting `"citation_audit_passed": true`.
 * **Key-Free Offline Mode (`_build_mock_brief`):** When `GEMINI_API_KEY` is unset in the environment, `generate_si_brief()` automatically routes to a deterministic template builder returning schema-valid `InterpretResponse` JSON (`"is_mock": true`), allowing full frontend and API testing without external API credits.

@@ -1,0 +1,306 @@
+{
+  "21.0_14.7_10.0_Cotton/Fiberglass Blend": {
+    "engineering_summary": [
+      "Target conditions (21.0% O2, 14.7 psi, 10.0 cm/s flow) closely match Small-Sample MSG BASS benchmarks where cotton/fiberglass blends of 0.37 mm thickness consistently exhibited 'Ignited - Sustained Spread' across both concurrent flow ([BASS | BASS-R1-T1-S4] at 22.1% O2, 3.15 psi pO2 and [BASS | BASS-R4-T7-S10] at 21.9% O2, 3.12 psi pO2) and opposed flow ([BASS | BASS-R55-T3-S6] at 22.67% O2, 3.34 psi pO2).",
+      "Across the cited BASS runs ([BASS | BASS-R1-T1-S4], [BASS | BASS-R4-T7-S10], [BASS | BASS-R55-T3-S6]), linear flame_spread_rate_mm_s was not tabulated in the records (null values), requiring reliance on qualitative sustained ignition outcomes and an Earth 1g baseline spread rate of 14.2 mm/s.",
+      "Small-scale MSG tests demonstrate that flame spread is robust under nominal atmospheric pressure (~14.26-14.75 psi) regardless of concurrent versus opposed flow orientation, with low convective airflow (10.0 cm/s) remaining sufficient to overcome microgravity oxygen depletion and prevent flame extinction."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "< 21.0% (sustained ignition validated down to 21.9% O2 at 3.12 psi pO2 in [BASS | BASS-R4-T7-S10])",
+      "zero_g_spread_bounds_mm_s": "1.65 - 3.10 mm/s (derived from 0g bounding envelope; individual linear rates in cited BASS runs were not tabulated)",
+      "partial_g_bracket_mm_s": "3.10 - 14.20 mm/s (bracketed between the 0g maximum envelope of 3.10 mm/s and the 1g baseline of 14.20 mm/s recorded in [BASS | BASS-R1-T1-S4])"
+    },
+    "earth_dual_use": "Directly impacts safety margin protocols for 21% O2/14.7 psi standard-pressure closed atmospheres such as submarine operational environments and clinical hyperbaric chambers transitioning from hyperoxic treatments, demonstrating that cotton/fiberglass composite fabrics support sustained flame propagation even under low air velocities (~10 cm/s) when ignition energy is present.",
+    "cited_test_ids": [
+      "BASS-R1-T1-S4",
+      "BASS-R4-T7-S10",
+      "BASS-R55-T3-S6"
+    ],
+    "citation_audit_passed": true
+  },
+  "21.0_14.7_10.0_PMMA (Cast Acrylic)": {
+    "engineering_summary": [
+      "Target habitat conditions (21.0% O2, 14.7 psi, 10.0 cm/s airflow) present high ignition and flammability risk for PMMA, directly corroborated by small-scale MSG opposed-flow tests [BASS-II | BASS2-M1-S222] (22.2% O2, 1.0 mm thick) and [BASS-II | BASS2-M16-S164m] (19.2% O2, 1.0 mm thick), both resulting in Ignited - Sustained Spread.",
+      "Increasing PMMA sample thickness from 1.0 mm to 3.0 mm reduces Earth 1g baseline spread rate from 1.0 mm/s to 0.72 mm/s, but sustained opposed spread persists down to 17.9% O2 (po2 2.63 psi) at 10.0 cm/s airflow in [BASS-II | BASS2-M18-S168m].",
+      "Linear 0g flame spread rates were not tabulated (null) in BASS-II MSG runs; however, partial-gravity envelope dynamics bound microgravity spread down to 0.025 mm/s compared to 1g baseline spread ranging from 0.45 to 2.8 mm/s across configurations."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "<17.9% grounded in sustained opposed spread at 10.0 cm/s airflow [BASS-II | BASS2-M18-S168m]",
+      "zero_g_spread_bounds_mm_s": "0.025 mm/s (linear spread rates null in BASS-II MSG runs; qualitative sustained spread observed)",
+      "partial_g_bracket_mm_s": "0.025 mm/s (0g lower bound) to 0.45 - 2.8 mm/s (1g Earth baseline bounds)"
+    },
+    "earth_dual_use": "The flammability threshold of PMMA below 17.9% O2 at 14.7 psi directly impacts material selection and electrical enclosure standards for submarine atmospheres and hyperbaric medical facilities, where cast acrylic observation viewports and panels operate near standard atmospheric pressures under forced convection.",
+    "cited_test_ids": [
+      "BASS2-M1-S222",
+      "BASS2-M16-S164m",
+      "BASS2-M18-S168m"
+    ],
+    "citation_audit_passed": true
+  },
+  "21.0_14.7_10.0_Nomex": {
+    "engineering_summary": [
+      "In small-sample MSG tests on 0.37 mm Nomex, flow direction strongly dictates flammability: opposed flow at 21.17% O2 and 14.29 psi (po2 3.03 psi, 9.0 cm/s) yielded No Ignition [BASS | BASS-R24-T12-S27], whereas concurrent flow demonstrated ignition sensitivity near the target habitat conditions.",
+      "Under concurrent flow at 14.7 psi, Nomex ignition risk sharply escalates across a narrow margin: 22.2% O2 (po2 3.26 psi, 9.5 cm/s) produced an Ignited - Self-Extinguished outcome [BASS-II | BASS2-F1-S227], while 21.7% O2 (po2 3.19 psi, 8.0 cm/s) resulted in Ignited - Sustained Spread [BASS-II | BASS2-F3-S229m], indicating the target 21.0% O2 atmosphere operates adjacent to the microgravity flammability boundary.",
+      "Linear flame spread rate was not tabulated (flame_spread_rate_mm_s is null) across all top-ranked BASS and BASS-II MSG runs; however, all runs consistently report an earth_1g_baseline_spread_mm_s of 0.0 mm/s, demonstrating that microgravity concurrent flow can sustain Nomex combustion where 1g terrestrial conditions extinguish it."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "21.2% - 21.7% O2 (based on No Ignition at 21.17% in opposed flow [BASS | BASS-R24-T12-S27] and Sustained Spread at 21.7% in concurrent flow [BASS-II | BASS2-F3-S229m])",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated (flame_spread_rate_mm_s is null across cited tests BASS-R24-T12-S27, BASS2-F1-S227, and BASS2-F3-S229m).",
+      "partial_g_bracket_mm_s": "0.0 mm/s to low-velocity self-extinction/slow sustained spread (bounded by 1g Earth baseline of 0.0 mm/s and qualitative microgravity sustained spread in BASS2-F3-S229m)."
+    },
+    "earth_dual_use": "Directly maps to flammability certification of firefighter and industrial Nomex PPE utilized in ambient-pressure hyperbaric or pressurized submarine environments (14.29–14.7 psi, 21.0%–22.2% O2), demonstrating that localized concurrent ventilation drafts can prompt sustained flame spread on fire-resistant textiles that normally pass 1g standard vertical flame tests.",
+    "cited_test_ids": [
+      "BASS-R24-T12-S27",
+      "BASS2-F1-S227",
+      "BASS2-F3-S229m"
+    ],
+    "citation_audit_passed": true
+  },
+  "21.0_14.7_10.0_Silicone": {
+    "engineering_summary": [
+      "At standard atmospheric pressure (14.7 psi) and nominal O2 levels (21.5% to 22.1%), vehicle-scale tests [SAFFIRE-II | SAFFIRE2-2-1] (0.27 mm), [SAFFIRE-II | SAFFIRE2-2-2] (0.61 mm), and [SAFFIRE-II | SAFFIRE2-2-3] (1.03 mm) ignited but consistently self-extinguished under concurrent flow at 20.0 cm/s.",
+      "Quantitative microgravity linear spread rates were not tabulated (flame_spread_rate_mm_s is null) across all cited vehicle-scale runs [SAFFIRE-II | SAFFIRE2-2-1, SAFFIRE2-2-2, SAFFIRE2-2-3], indicating that self-extinction prevents sustained steady-state propagation despite Earth 1g baseline spread reaching 0.8 mm/s to 1.2 mm/s.",
+      "Across varying sample thicknesses from thin (0.27 mm) to thick (1.03 mm) and partial oxygen pressures of po2_psi = 3.16 to 3.25 psi in Cygnus vehicle-scale tests [SAFFIRE-II | SAFFIRE2-2-1, SAFFIRE2-2-2, SAFFIRE2-2-3], thermal sink and radiative loss mechanisms dominate at low microgravity convective flows (target 10.0 cm/s vs test 20.0 cm/s), preventing steady concurrent flame growth."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "> 22.1% at 14.7 psi (based on self-extinction in [SAFFIRE-II | SAFFIRE2-2-2] and [SAFFIRE-II | SAFFIRE2-2-3])",
+      "zero_g_spread_bounds_mm_s": "Not tabulated; linear spread rate null due to self-extinction in [SAFFIRE-II | SAFFIRE2-2-1, SAFFIRE2-2-2, SAFFIRE2-2-3]",
+      "partial_g_bracket_mm_s": "Bounded between 0.0 mm/s (0g self-extinction proxy in [SAFFIRE-II | SAFFIRE2-2-1, SAFFIRE2-2-2]) and 0.6 - 1.2 mm/s (Earth 1g baseline envelope)"
+    },
+    "earth_dual_use": "Directly informs fire protection engineering and flammability screening protocols for clinical hyperbaric oxygen chambers and pressurized submarine environments operating at 14.7 psi and 21.0-22.1% O2, where silicone potting materials and flexible seals exhibit elevated self-extinction thresholds under buoyant natural convection compared to low-flow conditions.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-1",
+      "SAFFIRE2-2-2",
+      "SAFFIRE2-2-3"
+    ],
+    "citation_audit_passed": true
+  },
+  "32.0_10.2_15.0_Cotton/Fiberglass Blend": {
+    "engineering_summary": [
+      "Target atmosphere (32.0% O2, 10.2 psi, PO2 = 3.26 psi) exceeds baseline partial pressures where sustained combustion was confirmed for 0.37 mm Cotton/Fiberglass Blend in vehicle-scale concurrent flow tests [SAFFIRE-II | SAFFIRE2-2-5] and [SAFFIRE-II | SAFFIRE2-2-6] at 22.1% O2 (PO2 = 3.25 psi), resulting in sustained spread rates of 2.1 mm/s and 2.6 mm/s respectively.",
+      "Small-sample microgravity concurrent flow testing at MSG scale confirmed ignition and sustained spread at 21.63% O2 and 14.46 psi (PO2 = 3.13 psi) in [BASS | BASS-R13-T10-S2], though linear flame spread rate was not tabulated (null) and must be evaluated against its 1g baseline of 14.2 mm/s.",
+      "Higher target oxygen concentration (32.0% vs. 21.63-22.1%) with 15.0 cm/s forced ventilation presents severe flammability hazards, bounded below 1g baseline kinetics (14.2 mm/s) but matching or exceeding the vehicle-scale microgravity envelope of 1.65 to 3.10 mm/s observed across SAFFIRE-II runs."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "< 21.63% (sustained spread demonstrated down to 21.63% O2 at 14.46 psi in [BASS | BASS-R13-T10-S2])",
+      "zero_g_spread_bounds_mm_s": "1.65 to 3.10 mm/s (linear spread rates confirmed at 2.1 mm/s in [SAFFIRE-II | SAFFIRE2-2-5] and 2.6 mm/s in [SAFFIRE-II | SAFFIRE2-2-6]; linear rate not tabulated / null in [BASS | BASS-R13-T10-S2])",
+      "partial_g_bracket_mm_s": "3.10 to 14.2 mm/s (bracketed between the microgravity maximum envelope of 3.10 mm/s and terrestrial 1g baseline of 14.2 mm/s from [SAFFIRE-II | SAFFIRE2-2-5] and [BASS | BASS-R13-T10-S2])"
+    },
+    "earth_dual_use": "Directly maps to clinical hyperbaric oxygen chambers operating at elevated partial pressures (PO2 ~ 3.25 psi) and submarine atmosphere revitalization zones, indicating that 0.37 mm Cotton/Fiberglass blend textiles maintain sustained flame spread under enriched oxygen (32% O2) even at hypobaric conditions (10.2 psi), establishing flammability non-compliance for medical or maritime crew attire.",
+    "cited_test_ids": [
+      "BASS-R13-T10-S2",
+      "SAFFIRE2-2-5",
+      "SAFFIRE2-2-6"
+    ],
+    "citation_audit_passed": true
+  },
+  "32.0_10.2_15.0_PMMA (Cast Acrylic)": {
+    "engineering_summary": [
+      "The target atmosphere (32.0% O2, 10.2 psi, PO2 = 3.26 psi) exceeds the sustained combustion thresholds established in small-sample opposed-flow tests [ACME-BRE | ACME-BRE-2020-Sep-03-B50-O25_0] (25.0% O2, 10.2 psi, PO2 = 2.55 psi) and [ACME-BRE | ACME-BRE-2020-Sep-03-B50-O34_0] (34.0% O2, 8.2 psi, PO2 = 2.79 psi), both demonstrating Ignited - Sustained Spread on 1.0 mm PMMA with an Earth 1g baseline of 1.0 mm/s.",
+      "Across test scales and flow directions, thick 5.0 mm PMMA at vehicle-scale under concurrent flow [SAFFIRE-II | SAFFIRE2-2-8] (22.1% O2, 14.7 psi, PO2 = 3.25 psi, 20.0 cm/s flow) exhibited sustained propagation with a measured flame spread rate of 0.025 mm/s, demonstrating ignition and spread persist across opposed and concurrent configurations despite lower nominal O2 concentrations.",
+      "While ACME-BRE CIR small-scale tests [ACME-BRE-2020-Sep-03-B50-O34_0] and [ACME-BRE-2020-Sep-03-B50-O25_0] had untabulated linear flame spread rates (null), their sustained spread outcomes at comparable partial pressures confirm the target habitat sits well above the limiting ignition envelope, yielding a 100.0% Habitat Risk Index."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "< 22.1% O2 (sustained ignition observed at 22.1% O2 in SAFFIRE2-2-8 and 25.0% O2 in ACME-BRE-2020-Sep-03-B50-O25_0)",
+      "zero_g_spread_bounds_mm_s": "0.025 mm/s (derived from SAFFIRE-II vehicle-scale run SAFFIRE2-2-8; small-scale ACME-BRE spread rates null/not tabulated)",
+      "partial_g_bracket_mm_s": "0.025 mm/s to 1.00 mm/s (bounded between 0g SAFFIRE2-2-8 at 0.025 mm/s and 1g baseline of 1.0 mm/s from ACME-BRE tests)"
+    },
+    "earth_dual_use": "These PMMA combustion thresholds at elevated oxygen levels (25.0% to 34.0% O2, 8.2 to 10.2 psi, PO2 2.55-2.79 psi) directly inform flammability safety limits and material selection for clinical hyperbaric oxygen chambers (HBOT) and submarine atmospheric revitalization systems where transparent acrylic viewing ports are subjected to enriched PO2 environments.",
+    "cited_test_ids": [
+      "ACME-BRE-2020-Sep-03-B50-O34_0",
+      "ACME-BRE-2020-Sep-03-B50-O25_0",
+      "SAFFIRE2-2-8"
+    ],
+    "citation_audit_passed": true
+  },
+  "32.0_10.2_15.0_Nomex": {
+    "engineering_summary": [
+      "Target atmosphere features an elevated 32.0% O2 at 10.2 psi (pO2 = 3.26 psi), which falls directly within the flammability regime where 0.37 mm Nomex exhibited 'Ignited - Sustained Spread' in microgravity under opposed forced flows of 14.5 to 15.0 cm/s at comparable oxygen partial pressures [BASS | BASS-R38-T14-S29] (pO2 = 3.15 psi) and [BASS | BASS-R14-T12-S27] (pO2 = 3.13 psi).",
+      "Across all cited Small-Sample MSG investigations [BASS | BASS-R57-T13-S28], [BASS | BASS-R38-T14-S29], and [BASS | BASS-R14-T12-S27], sample thickness was uniform at 0.37 mm under opposed flow (14.5-15.0 cm/s), demonstrating a critical flammability transition around 21.6% to 22.5% O2 where spread is sustained despite having a zero mm/s spread baseline in Earth 1g tests.",
+      "Linear flame spread rates (flame_spread_rate_mm_s) were not tabulated for these microgravity Nomex burns; however, the transition to sustained combustion indicates high fire risk for 0.37 mm Nomex in the target habitat's 32% O2 environment compared to marginal extinction observed at 22.53% O2 [BASS | BASS-R57-T13-S28]."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "21.6% - 22.0% O2 under 14.5-15.0 cm/s opposed flow, bounded between sustained spread at 21.63% [BASS | BASS-R14-T12-S27] and self-extinguishment at 22.53% [BASS | BASS-R57-T13-S28]",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated in PSI dataset (null values); qualitative sustained propagation confirmed [BASS | BASS-R38-T14-S29]",
+      "partial_g_bracket_mm_s": "0.0 mm/s (Earth 1g baseline [BASS | BASS-R38-T14-S29]) to qualitative sustained microgravity spread rate (not tabulated in BASS)"
+    },
+    "earth_dual_use": "This Nomex flammability boundary mapping at elevated oxygen partial pressure (pO2 ~3.13-3.34 psi / 32% O2) directly informs material selection and safety compliance for firefighter and industrial structural PPE, as well as atmospheric flammability management in hyperbaric oxygen chambers and closed-environment diving submersibles.",
+    "cited_test_ids": [
+      "BASS-R57-T13-S28",
+      "BASS-R38-T14-S29",
+      "BASS-R14-T12-S27"
+    ],
+    "citation_audit_passed": true
+  },
+  "32.0_10.2_15.0_Silicone": {
+    "engineering_summary": [
+      "Target habitat conditions (32.0% O2, 10.2 psi, pO2 of 3.26 psi) present an elevated ignition and flammability risk compared to baseline, though closely matching the pO2 of 3.25 psi in SAFFIRE-II tests.",
+      "In microgravity runs [SAFFIRE-II | SAFFIRE2-2-2] (0.61 mm thickness, Concurrent flow) and [SAFFIRE-II | SAFFIRE2-2-3] (1.03 mm thickness, Concurrent flow), silicone samples ignited but self-extinguished at 22.1% O2 and 20.0 cm/s airflow.",
+      "Opposed-flow run [SAFFIRE-II | SAFFIRE2-2-4] (0.37 mm thickness) also resulted in self-extinction with null linear spread tabulated, whereas 1g Earth baseline tests sustained spread at 0.6 mm/s to 1.2 mm/s across thicknesses of 0.37 mm to 0.61 mm."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": ">22.1% at 14.7 psi (microgravity self-extinction observed in [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-3], and [SAFFIRE-II | SAFFIRE2-2-4])",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated (null across SAFFIRE2-2-2, SAFFIRE2-2-3, and SAFFIRE2-2-4 due to self-extinction outcome)",
+      "partial_g_bracket_mm_s": "0.0 mm/s (0g lower bound via self-extinction in SAFFIRE2-2-2, SAFFIRE2-2-4) to 0.6 - 1.2 mm/s (1g upper baseline bound)"
+    },
+    "earth_dual_use": "The flammability threshold and self-extinction dynamics observed for silicone at pO2 around 3.25-3.26 psi directly apply to risk certification of silicone seals and medical tubing used in hyperbaric oxygen chambers and enriched-air saturation diving or submarine systems operating above 21% O2.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-2",
+      "SAFFIRE2-2-3",
+      "SAFFIRE2-2-4"
+    ],
+    "citation_audit_passed": true
+  },
+  "34.0_8.2_12.0_Cotton/Fiberglass Blend": {
+    "engineering_summary": [
+      "Target habitat condition (34.0% O2, 8.2 psi, pO2 2.79 psi, 12.0 cm/s airflow) presents extreme flammability risk as demonstrated by small-sample MSG tests [BASS | BASS-R13-T10-S2], [BASS | BASS-R1-T1-S4], and [BASS | BASS-R4-T7-S10], all of which showed 'Ignited - Sustained Spread' on 0.37 mm thick cotton/fiberglass fabric even at lower O2 concentrations (21.63% to 22.1%) and comparable concurrent flow velocities (10.0 to 11.0 cm/s).",
+      "Across top matches [BASS | BASS-R13-T10-S2], [BASS | BASS-R1-T1-S4], and [BASS | BASS-R4-T7-S10], linear flame spread rate in microgravity was not tabulated (null); however, all exhibited robust sustained concurrent spread with an Earth 1g baseline spread rate of 14.2 mm/s at 0.37 mm thickness and ~3.13 psi pO2.",
+      "While the target habitat total pressure is reduced to 8.2 psi, its elevated O2 concentration of 34.0% significantly exceeds the microgravity sustained combustion threshold demonstrated in [BASS | BASS-R13-T10-S2] at 21.63% O2, indicating an imminent sustained propagation hazard under forced convection."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "<21.6% based on sustained microgravity ignition in [BASS | BASS-R13-T10-S2]",
+      "zero_g_spread_bounds_mm_s": "1.65 to 3.10 mm/s (derived from bounding envelope; specific BASS linear rates were not tabulated)",
+      "partial_g_bracket_mm_s": "3.10 to 14.20 mm/s (bracketed between zero-g maximum 3.10 mm/s and Earth 1g baseline 14.20 mm/s cited in [BASS | BASS-R13-T10-S2])"
+    },
+    "earth_dual_use": "Directly maps to fabric safety specifications in normobaric/hyperbaric medical treatment and diving chambers where O2 concentrations exceed 21% (up to 34% O2 equivalent), establishing that cotton/fiberglass textiles of 0.37 mm thickness readily sustain concurrent flame propagation under low convective velocities (10-12 cm/s).",
+    "cited_test_ids": [
+      "BASS-R13-T10-S2",
+      "BASS-R1-T1-S4",
+      "BASS-R4-T7-S10"
+    ],
+    "citation_audit_passed": true
+  },
+  "34.0_8.2_12.0_PMMA (Cast Acrylic)": {
+    "engineering_summary": [
+      "Target atmosphere matches [ACME-BRE | ACME-BRE-2020-Sep-03-B50-O34_0] (34.0% O2, 8.2 psi, po2=2.79 psi, 1.0 mm PMMA, Opposed flow at 10.0 cm/s), which resulted in Ignited - Sustained Spread; linear flame spread rate was not tabulated in the microgravity record.",
+      "Across small-sample scale investigations in MSG and CIR [BASS-II | BASS2-M1-S222] (22.2% O2, 14.7 psi, po2=3.26 psi) and [ACME-BRE | ACME-BRE-2020-Sep-03-B50-O25_0] (25.0% O2, 10.2 psi, po2=2.55 psi), 1.0 mm PMMA under opposed flow uniformly sustains ignition despite varying total pressures and oxygen concentrations.",
+      "Habitat risk is critical at 100.0% index; Earth 1g baselines across all cited tests show 1.0 mm/s spread rates, while the partial-gravity bounding envelope predicts zero-g spread bounds at 0.025 mm/s and terrestrial baselines ranging from 0.45 to 2.8 mm/s."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "<22.2% (sustained spread observed at 22.2% O2 in [BASS-II | BASS2-M1-S222])",
+      "zero_g_spread_bounds_mm_s": "0.025 mm/s (linear spread rate not tabulated for individual cited proxy runs)",
+      "partial_g_bracket_mm_s": "0.025 to 1.0 mm/s (bounded between 0g envelope min and cited 1g baseline)"
+    },
+    "earth_dual_use": "Directly maps to clinical hyperbaric oxygen chambers and enriched diving/decompression habitats where elevated O2 concentrations (up to 34% or equivalent elevated partial pressures of 2.79 psi) combined with acrylic viewports (PMMA) pose high flammability risks requiring rigorous Limiting Oxygen Index screening.",
+    "cited_test_ids": [
+      "ACME-BRE-2020-Sep-03-B50-O34_0",
+      "ACME-BRE-2020-Sep-03-B50-O25_0",
+      "BASS2-M1-S222"
+    ],
+    "citation_audit_passed": true
+  },
+  "34.0_8.2_12.0_Nomex": {
+    "engineering_summary": [
+      "Target atmosphere conditions (34.0% O2, 8.2 psi, pO2 = 2.79 psi, 12.0 cm/s airflow) present an elevated ignition and flammability risk for 0.37 mm Nomex, which demonstrated sustained microgravity combustion even at lower ambient oxygen concentrations in [BASS | BASS-R38-T14-S29] (21.98% O2, 14.35 psi, pO2 = 3.15 psi, 14.5 cm/s opposed flow).",
+      "Across small-scale MSG investigations with 0.37 mm Nomex, flow configuration and velocity govern propagation boundary regimes: concurrent flow at 9.5 cm/s yielded self-extinguishment in [BASS-II | BASS2-F1-S227] (22.2% O2, 14.7 psi, pO2 = 3.26 psi), whereas opposed flow led to sustained spread at 14.5 cm/s [BASS | BASS-R38-T14-S29] and self-extinguishment at 15.0 cm/s [BASS | BASS-R57-T13-S28] (22.53% O2, 14.81 psi, pO2 = 3.34 psi).",
+      "Linear microgravity flame spread rates were not tabulated across BASS/BASS-II runs (flame_spread_rate_mm_s is null), yet all cited samples achieved ignition in zero gravity despite having a completely non-propagating Earth 1g baseline spread rate of 0.0 mm/s in [BASS | BASS-R38-T14-S29], [BASS-II | BASS2-F1-S227], and [BASS | BASS-R57-T13-S28]."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "21.98% to 22.53% under opposed flow conditions at ~14.5-15.0 cm/s based on [BASS | BASS-R38-T14-S29] and [BASS | BASS-R57-T13-S28]",
+      "zero_g_spread_bounds_mm_s": "Quantitative linear rate not tabulated in PSI dataset (null); sustained microgravity flame spread confirmed in [BASS | BASS-R38-T14-S29]",
+      "partial_g_bracket_mm_s": "Bounded between 0.0 mm/s (Earth 1g baseline in [BASS | BASS-R38-T14-S29]) and non-tabulated positive microgravity spread rate"
+    },
+    "earth_dual_use": "Directly maps flammability margins of Nomex PPE and electrical wraps used in hyperbaric chambers, clinical dive environments, and submarine atmospheres where elevated partial pressures of oxygen (pO2 ~2.8 to 3.3 psi) negate standard 1g ambient non-flammability ratings.",
+    "cited_test_ids": [
+      "BASS-R38-T14-S29",
+      "BASS2-F1-S227",
+      "BASS-R57-T13-S28"
+    ],
+    "citation_audit_passed": true
+  },
+  "34.0_8.2_12.0_Silicone": {
+    "engineering_summary": [
+      "Target habitat conditions (34.0% O2, 8.2 psi, pO2 = 2.79 psi, 12.0 cm/s flow) present elevated ignition risk compared to vehicle-scale tests [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-3], and [SAFFIRE-II | SAFFIRE2-2-4] where silicone at 22.1% O2 and 14.7 psi (pO2 = 3.25 psi) successfully ignited but self-extinguished.",
+      "Linear flame spread rates (flame_spread_rate_mm_s) were not tabulated for vehicle-scale runs [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-3], or [SAFFIRE-II | SAFFIRE2-2-4]; however, 1g Earth baselines demonstrate that thinner samples burn faster, showing 1.2 mm/s at 0.61 mm thickness versus 0.6 mm/s at 0.37 mm under opposed flow.",
+      "Governing variables across tests demonstrate that flow direction (concurrent in [SAFFIRE-II | SAFFIRE2-2-2] and [SAFFIRE-II | SAFFIRE2-2-3] vs opposed in [SAFFIRE-II | SAFFIRE2-2-4]) and sample thickness (ranging from 0.37 mm to 1.03 mm) still resulted in self-extinguishment at 22.1% O2, but the target habitat's elevated 34.0% O2 exceeds the tested concentration and could transition silicone to sustained propagation."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "> 22.1% O2 at 14.7 psi (pO2 = 3.25 psi) based on self-extinguishment across all thicknesses in [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-3], and [SAFFIRE-II | SAFFIRE2-2-4]",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated (null in [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-3], and [SAFFIRE-II | SAFFIRE2-2-4]); zero-g flame spread bounds cannot be quantitatively established due to self-extinguishment outcomes.",
+      "partial_g_bracket_mm_s": "Bounded between non-propagating 0g conditions (self-extinguished in [SAFFIRE-II | SAFFIRE2-2-2], [SAFFIRE-II | SAFFIRE2-2-4]) and 1g Earth baselines of 0.6 to 1.2 mm/s."
+    },
+    "earth_dual_use": "The flammability threshold and self-extinguishment behavior of silicone polymers between 22.1% and 34.0% O2 maps directly to safety protocols for clinical hyperbaric oxygen chambers (HBOT) and submarine atmosphere control systems, where silicone gaskets, seals, and wire insulation are exposed to elevated oxygen fractions and must resist ignition during pressurization transients.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-2",
+      "SAFFIRE2-2-3",
+      "SAFFIRE2-2-4"
+    ],
+    "citation_audit_passed": true
+  },
+  "50.0_14.7_25.0_Cotton/Fiberglass Blend": {
+    "engineering_summary": [
+      "Target atmosphere of 50.0% O2 at 14.7 psi (pO2 = 7.35 psi) vastly exceeds demonstrated ignition conditions for 0.37 mm Cotton/Fiberglass Blend, which sustained concurrent flame spread at only 22.1% O2 / 3.25 psi pO2 in vehicle-scale tests [SAFFIRE-II | SAFFIRE2-2-5] and [SAFFIRE-II | SAFFIRE2-2-6].",
+      "Scale effects are apparent between MSG small-scale configuration [BASS | BASS-R12-T4-S12] and vehicle-scale Cygnus runs [SAFFIRE-II | SAFFIRE2-2-5], where 0.37 mm thick fabric sustained ignition under concurrent forced flow (20-22 cm/s) across both scales; note that linear spread rate was not tabulated in [BASS | BASS-R12-T4-S12] whereas Cygnus vehicle-scale yielded steady spread rates of 2.1 to 2.6 mm/s.",
+      "With target airflow of 25.0 cm/s and high oxygen enrichment, flame spread will be intensely supercritical relative to the microgravity envelope (1.65 to 3.1 mm/s across 6 microgravity samples) and will accelerate toward or exceed the Earth 1g concurrent baseline rate of 14.2 mm/s."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "< 21.63% (sustained concurrent spread demonstrated at 21.63% O2, 14.46 psi in [BASS | BASS-R12-T4-S12] and 22.1% O2, 14.7 psi in [SAFFIRE-II | SAFFIRE2-2-5])",
+      "zero_g_spread_bounds_mm_s": "2.1 to 2.6 mm/s at 22.1% O2 (linear spread rate was not tabulated for [BASS | BASS-R12-T4-S12]; bounds derived from [SAFFIRE-II | SAFFIRE2-2-5] and [SAFFIRE-II | SAFFIRE2-2-6])",
+      "partial_g_bracket_mm_s": "2.1 to 14.2 mm/s (bounded between 0g Cygnus lower baseline of 2.1 mm/s and 1g concurrent baseline of 14.2 mm/s)"
+    },
+    "earth_dual_use": "This extreme 50% O2 at 14.7 psi (pO2 = 7.35 psi) threshold directly applies to clinical hyperbaric oxygen chambers and saturation diving habitats, where cotton-blend textiles lower the ignition threshold drastically and exhibit fast upward/concurrent flame propagation resembling 1g baselines (14.2 mm/s), necessitating strict exclusion of non-inherently fire-retardant garments.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-5",
+      "SAFFIRE2-2-6",
+      "BASS-R12-T4-S12"
+    ],
+    "citation_audit_passed": true
+  },
+  "50.0_14.7_25.0_PMMA (Cast Acrylic)": {
+    "engineering_summary": [
+      "The target habitat atmosphere (50.0% O2, 14.7 psi, po2=7.35 psi) drastically surpasses the flammability thresholds established in baseline runs, where PMMA sustained combustion even at ~22.0-22.2% O2 and po2 ~3.23-3.26 psi under 20.0 cm/s airflow [SAFFIRE-II | SAFFIRE2-2-8, SAFFIRE-II | SAFFIRE2-2-9, BASS-II | BASS2-M2-S224].",
+      "Across vehicle-scale concurrent tests, PMMA exhibited steady low-velocity spread of 0.025 mm/s regardless of thickness variation between 5.0 mm [SAFFIRE-II | SAFFIRE2-2-8] and 10.0 mm [SAFFIRE-II | SAFFIRE2-2-9], while small-scale opposed flow testing on 3.0 mm PMMA also confirmed sustained ignition though linear spread was not tabulated [BASS-II | BASS2-M2-S224].",
+      "Given that 0g spread rates at normal ambient O2 reach 0.025 mm/s [SAFFIRE-II | SAFFIRE2-2-8] compared to 1g baselines of 0.45-0.72 mm/s [SAFFIRE-II | SAFFIRE2-2-9, BASS-II | BASS2-M2-S224], the target 50.0% O2 concentration represents an extreme flammability risk where convective thermal feedback and elevated chemical kinetics will dramatically accelerate spread beyond baseline microgravity values."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "<= 22.0% O2 based on sustained spread observed across 5.0-10.0 mm concurrent samples [SAFFIRE2-2-8, SAFFIRE2-2-9] and 3.0 mm opposed samples [BASS2-M2-S224]",
+      "zero_g_spread_bounds_mm_s": "0.025 mm/s to 0.025 mm/s for 5.0-10.0 mm concurrent samples [SAFFIRE2-2-8, SAFFIRE2-2-9]; note that linear spread rate was not tabulated for small-scale opposed run [BASS2-M2-S224]",
+      "partial_g_bracket_mm_s": "0.025 mm/s to 0.45 - 0.72 mm/s (bounded between 0g PSI runs [SAFFIRE2-2-8, SAFFIRE2-2-9] and Earth 1g baselines [SAFFIRE2-2-9, BASS2-M2-S224])"
+    },
+    "earth_dual_use": "This severe 50% O2 flammability threshold directly translates to terrestrial clinical hyperbaric oxygen chambers (HBOT) and closed-circuit rebreather/hyperbaric diving protocols, where structural acrylic observation windows and PMMA medical equipment face catastrophic ignition risk if po2 exceeds normal ambient levels.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-8",
+      "SAFFIRE2-2-9",
+      "BASS2-M2-S224"
+    ],
+    "citation_audit_passed": true
+  },
+  "50.0_14.7_25.0_Nomex": {
+    "engineering_summary": [
+      "Target atmosphere contains an extreme oxygen concentration (50.0% O2, 14.7 psi, po2 ~7.35 psi), well above the ~21.6-22.5% O2 baseline tested in BASS, representing a severe flammability hazard for Nomex.",
+      "Small-Sample MSG microgravity runs with 0.37 mm Nomex demonstrate that lower airflow (15.0 cm/s opposed) sustained flame spread in [BASS | BASS-R14-T12-S27] at 21.63% O2 and ignited with self-extinguishment in [BASS | BASS-R57-T13-S28] at 22.53% O2, whereas higher airflow (30.0 cm/s) suppressed ignition entirely in [BASS | BASS-R56-T15-S30].",
+      "Across all cited microgravity runs ([BASS | BASS-R56-T15-S30], [BASS | BASS-R57-T13-S28], [BASS | BASS-R14-T12-S27]), linear flame spread rate (flame_spread_rate_mm_s) was not tabulated; 1g Earth baseline spread is documented as 0.0 mm/s, underscoring that microgravity conditions facilitate ignition/spread of Nomex where normal gravity does not."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "Below 21.63% O2 at 14.46 psi under low convective flow (15 cm/s opposed) based on sustained spread observed in [BASS | BASS-R14-T12-S27]",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated in BASS PSI records (null across cited runs [BASS | BASS-R56-T15-S30], [BASS | BASS-R57-T13-S28], [BASS | BASS-R14-T12-S27])",
+      "partial_g_bracket_mm_s": "Bounded by Earth 1g baseline of 0.0 mm/s and qualitative sustained spread in microgravity [BASS | BASS-R14-T12-S27], with quantitative linear bounds unquantified due to null PSI data"
+    },
+    "earth_dual_use": "Directly impacts hyperbaric oxygen chambers and specialized industrial/firefighter PPE selection where fabrics rated fire-resistant in ambient air (1g, 21% O2, LOI ~28-30% terrestrial) become readily ignitable in enriched oxygen environments (>21-50% O2) or low-buoyancy micro-environments.",
+    "cited_test_ids": [
+      "BASS-R56-T15-S30",
+      "BASS-R57-T13-S28",
+      "BASS-R14-T12-S27"
+    ],
+    "citation_audit_passed": true
+  },
+  "50.0_14.7_25.0_Silicone": {
+    "engineering_summary": [
+      "Target atmosphere oxygen concentration (50.0% O2, 14.7 psi, PO2 7.35 psi) vastly exceeds the baseline vehicle-scale Cygnus conditions of 22.1% O2 (PO2 3.25 psi), presenting severe flammability risk despite lower-oxygen self-extinguishment behavior seen in [SAFFIRE-II | SAFFIRE2-2-2].",
+      "Experimental microgravity tests at 22.1% O2 demonstrated self-extinguishment across concurrent flow orientations for 0.61 mm and 1.03 mm thickness samples [SAFFIRE-II | SAFFIRE2-2-2, SAFFIRE2-2-3], as well as opposed flow for 0.37 mm thickness samples [SAFFIRE-II | SAFFIRE2-2-4].",
+      "Linear flame spread rates in 0g were not tabulated (null) for the Cygnus vehicle-scale burns [SAFFIRE-II | SAFFIRE2-2-2, SAFFIRE2-2-3, SAFFIRE2-2-4], but 1g Earth baseline spread rates spanned 0.6 mm/s in opposed flow [SAFFIRE-II | SAFFIRE2-2-4] to 1.2 mm/s in concurrent flow [SAFFIRE-II | SAFFIRE2-2-2] at 20.0 cm/s airflow."
+    ],
+    "modeling_parameters": {
+      "estimated_loi_percent": "> 22.1% O2 at 14.7 psi (PO2 3.25 psi) based on consistent self-extinguishment in [SAFFIRE-II | SAFFIRE2-2-2, SAFFIRE2-2-3, SAFFIRE2-2-4]",
+      "zero_g_spread_bounds_mm_s": "Linear spread rate was not tabulated across microgravity runs; qualitative outcome was Ignited - Self-Extinguished [SAFFIRE-II | SAFFIRE2-2-2, SAFFIRE2-2-3, SAFFIRE2-2-4]",
+      "partial_g_bracket_mm_s": "0.0 mm/s (bounded by 0g self-extinguishment in [SAFFIRE-II | SAFFIRE2-2-2]) to 1.2 mm/s (bounded by concurrent 1g Earth baseline in [SAFFIRE-II | SAFFIRE2-2-2])"
+    },
+    "earth_dual_use": "Directly maps to clinical hyperbaric oxygen chambers operating at elevated O2 concentrations and pressures, establishing strict silicone seal and insulation replacement guidelines due to material flammability when exceeding normal atmospheric PO2 thresholds.",
+    "cited_test_ids": [
+      "SAFFIRE2-2-2",
+      "SAFFIRE2-2-3",
+      "SAFFIRE2-2-4"
+    ],
+    "citation_audit_passed": true
+  }
+}
