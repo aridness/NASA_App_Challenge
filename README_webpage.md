@@ -21,3 +21,7 @@ The exported CSV packages the Top 5 physics-ranked NASA Physical Sciences Inform
 ---
 
 How MATLAB uses it: When loaded via T = readtable('ignis_psi_....csv'), an engineer immediately has a clean table where T.target_pressure_pa(1) and T.target_airflow_m_s(1) set the simulation's ambient boundary conditions, while T.cohort_0g_max_mm_s(1) and T.cohort_1g_max_mm_s(1) (alongside the 5 empirical test rows) define the lower and upper flame-spread bounds to validate their partial-gravity simulation against.
+
+---
+
+Epistemic certainty is a property of the NASA PSI experimental dataset, not the user's cursor. Instead of measuring distance to the target, each pixel $(x, y)$ should compute its maximum kernel proximity to the actual NASA PSI experiments in the active material/flow cohort:$$\text{Certainty}(x, y) = \max_{i \in \text{PSI Cohort}} \frac{100}{1 + d^2\big((x, y, z_{\text{target}}),\ \text{run}_i\big)}$$

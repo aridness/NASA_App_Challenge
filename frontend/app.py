@@ -19,6 +19,8 @@ from backend.ranker.ranker import rank_psi_runs
 from backend.interpreter import generate_si_brief
 from backend.schemas import InterpretRequest
 
+IMAGES_DIR = Path(__file__).resolve().parent / "images"
+
 # -----------------------------------------------------------------------------
 # Page Config & Clean Scientific Light-Mode Styling
 # -----------------------------------------------------------------------------
@@ -32,7 +34,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Hide Streamlit top deploy toolbar so header buttons never clip */
     header[data-testid="stHeader"] {
         visibility: hidden;
         height: 0px;
@@ -46,18 +47,6 @@ st.markdown(
         padding-left: 1.5rem;
         padding-right: 1.5rem;
         max-width: 100%;
-    }
-    div[data-testid="stMetricValue"] {
-        font-size: 1.55rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-    div[data-testid="stMetricLabel"] {
-        font-size: 0.74rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: #475569;
-        font-weight: 600;
     }
     .badge {
         display: inline-block;
@@ -79,6 +68,12 @@ st.markdown(
         margin-top: 8px;
         font-size: 0.82rem;
         color: #0f172a;
+    }
+    div[data-testid="stImage"] img {
+        border-radius: 6px;
+        object-fit: cover;
+        max-height: 165px;
+        width: 100%;
     }
     </style>
     """,
@@ -102,6 +97,61 @@ def load_data():
 records, presets = load_data()
 unique_records = list({r["test_id"]: r for r in records}.values())
 materials = ["All"] + sorted({r["material"] for r in unique_records if r.get("material")})
+
+
+# -----------------------------------------------------------------------------
+# Local Scenario Image Renderer (frontend/images/)
+# -----------------------------------------------------------------------------
+def render_scenario_asset(preset_id: str, o2: float, pressure: float, airflow: float):
+    meta = {
+        "iss_standard": (
+            "ISS.jpg",
+            "International Space Station (LEO)",
+            "0g Microgravity · 1 atm Standard Cabin",
+        ),
+        "lunar_habitat": (
+            "moon.jpg",
+            "Artemis Lunar Surface Habitat",
+            "1/6g Partial Gravity · Exploration Atmosphere",
+        ),
+        "mars_habitat": (
+            "mars.jpg",
+            "Mars Transit & Surface Base",
+            "3/8g Partial Gravity · Hypobaric High-O₂",
+        ),
+        "apollo1_mir_stress": (
+            "apollo11.jpg",
+            "Hyperoxic Stress Benchmark",
+            "High-O₂ / Forced-Flow Boundary Limit",
+        ),
+    }
+    filename, title, regime = meta.get(
+        preset_id,
+        (None, "Custom Parametric Envelope", "User-Defined Habitat Boundary"),
+    )
+
+    image_path = (IMAGES_DIR / filename) if filename else None
+    if image_path and image_path.exists():
+        st.image(str(image_path), use_container_width=True)
+    else:
+        st.markdown(
+            f"<div style='background:#f1f5f9;border:1px dashed #cbd5e1;border-radius:6px;"
+            f"padding:22px 12px;text-align:center;color:#475569;font-size:0.78rem;'>"
+            f"<b>Custom Parametric Regime</b><br>Adjust sliders above to probe arbitrary cabin atmospheres</div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        f"<div style='text-align:center;margin-top:6px;'>"
+        f"<div style='font-size:0.84rem;font-weight:700;color:#0f172a;'>{title}</div>"
+        f"<div style='font-size:0.74rem;color:#475569;margin-top:1px;'>{regime}</div>"
+        f"<div style='margin-top:6px;'>"
+        f"<span class='badge badge-blue'>{o2:.0f}% O₂</span>"
+        f"<span class='badge badge-blue'>{pressure:.1f} psi</span>"
+        f"<span class='badge badge-blue'>{airflow:.0f} cm/s</span>"
+        f"</div></div>",
+        unsafe_allow_html=True,
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -252,7 +302,6 @@ env = results["bounding_envelope"]
 risk_pct = results["habitat_risk_index"]
 target_po2 = round((st.session_state.o2 / 100.0) * st.session_state.pressure, 2)
 
-# Risk Severity Classification
 if risk_pct >= 70.0:
     risk_tier_label = "CRITICAL IGNITION RISK"
     risk_tier_cls = "badge-red"
@@ -408,7 +457,7 @@ st.markdown("<hr style='margin: 0.4rem 0 0.8rem 0; border-color: #e2e8f0;'>", un
 col_left, col_stage = st.columns([1.0, 2.85], gap="medium")
 
 # =============================================================================
-# ZONE 1: LEFT RAIL (Large Mission Presets + Collapsible Custom Controls)
+# ZONE 1: LEFT RAIL (Mission Presets + Swappable Image / Custom Controls)
 # =============================================================================
 with col_left:
     with st.container(border=True):
@@ -445,50 +494,57 @@ with col_left:
                 args=(preset,),
             )
 
-    with st.expander("⚙️ Custom Habitat & Fuel Parameters", expanded=False):
-        st.slider(
-            "Oxygen Mole Fraction (O₂ %)",
-            min_value=18.0,
-            max_value=55.0,
-            step=0.5,
-            key="o2",
-            on_change=mark_custom_profile,
-        )
-        st.slider(
-            "Cabin Pressure (psi)",
-            min_value=4.3,
-            max_value=14.7,
-            step=0.1,
-            key="pressure",
-            on_change=mark_custom_profile,
-        )
-        st.slider(
-            "Ventilation Airflow (cm/s)",
-            min_value=0.0,
-            max_value=30.0,
-            step=0.5,
-            key="airflow",
-            on_change=mark_custom_profile,
-        )
-        st.caption(f"Computed $P_{{O_2}}$: **{target_po2} psi** (Sea-level = `3.09 psi`)")
-        st.divider()
-        st.selectbox(
-            "Material Category",
-            options=materials,
-            key="material",
-        )
-        st.radio(
-            "Ventilation Flow Direction",
-            options=["Any", "Opposed", "Concurrent"],
-            horizontal=True,
-            key="flow_dir",
-        )
+    with st.container(border=True):
+        custom_expanded = st.toggle("⚙️ Custom Habitat & Fuel Parameters", value=False)
+        if custom_expanded:
+            st.slider(
+                "Oxygen Mole Fraction (O₂ %)",
+                min_value=18.0,
+                max_value=55.0,
+                step=0.5,
+                key="o2",
+                on_change=mark_custom_profile,
+            )
+            st.slider(
+                "Cabin Pressure (psi)",
+                min_value=4.3,
+                max_value=14.7,
+                step=0.1,
+                key="pressure",
+                on_change=mark_custom_profile,
+            )
+            st.slider(
+                "Ventilation Airflow (cm/s)",
+                min_value=0.0,
+                max_value=30.0,
+                step=0.5,
+                key="airflow",
+                on_change=mark_custom_profile,
+            )
+            st.selectbox(
+                "Material Category",
+                options=materials,
+                key="material",
+            )
+            st.radio(
+                "Ventilation Flow Direction",
+                options=["Any", "Opposed", "Concurrent"],
+                horizontal=True,
+                key="flow_dir",
+            )
+        else:
+            render_scenario_asset(
+                st.session_state.active_preset_id,
+                st.session_state.o2,
+                st.session_state.pressure,
+                st.session_state.airflow,
+            )
 
 # =============================================================================
-# ZONE 2: CENTER HERO STAGE (KPI Strip + Scatter Matrix + Partial-g Anchor)
+# ZONE 2: CENTER HERO STAGE (KPI Strip + Empirical Manifold + Partial-g Anchor)
 # =============================================================================
 with col_stage:
-    # 1. Top KPI Strip with Immediate Severity Classification
+    # 1. Top KPI Strip
     m1, m2, m3 = st.columns(3)
     with m1:
         with st.container(border=True):
@@ -531,11 +587,11 @@ with col_stage:
                 unsafe_allow_html=True,
             )
 
-    # 2. Hero Operating-Envelope Scatter Plot (Light Theme + Top-5 Highlight Rings)
+    # 2. Hero Empirical Data Manifold + Top-5 Matched Analogs
     with st.container(border=True):
         hdr_plot, hdr_axis = st.columns([3.0, 1.2])
         with hdr_plot:
-            st.markdown("**PSI Combustion Operating-Envelope Matrix**")
+            st.markdown("**PSI Empirical Support Manifold & Top-5 Matched Analogs**")
         with hdr_axis:
             y_axis_choice = st.selectbox(
                 "Y-Axis",
@@ -546,6 +602,92 @@ with col_stage:
         y_field = "airflow_cm_s" if "Airflow" in y_axis_choice else "pressure_psi"
         target_y_val = st.session_state.airflow if y_field == "airflow_cm_s" else st.session_state.pressure
 
+        # Filter PSI records to active material/flow cohort so the manifold reflects real data coverage
+        cohort_records = [
+            r for r in unique_records
+            if (st.session_state.material == "All" or r.get("material") == st.session_state.material)
+            and (flow_arg is None or r.get("flow_direction") == flow_arg)
+        ] or unique_records
+
+        # High-resolution 2D grid evaluating empirical proximity to NASA PSI experiments
+        x_grid = [17.0 + i * (39.0 / 119.0) for i in range(120)]
+        y_min_axis, y_max_axis = (-1.0, 32.0) if y_field == "airflow_cm_s" else (3.5, 16.0)
+        y_grid = [y_min_axis + j * ((y_max_axis - y_min_axis) / 89.0) for j in range(90)]
+
+        z_grid = []
+        for y_val in y_grid:
+            row_scores = []
+            for o2_val in x_grid:
+                p_val = st.session_state.pressure if y_field == "airflow_cm_s" else y_val
+                v_val = y_val if y_field == "airflow_cm_s" else st.session_state.airflow
+                po2_val = (o2_val / 100.0) * p_val
+
+                max_support = 0.0
+                for r in cohort_records:
+                    r_po2 = r.get("po2_psi", (r["o2_percent"] / 100.0) * r["pressure_psi"])
+                    dist_sq = (
+                        0.25 * ((o2_val - r["o2_percent"]) / 10.0) ** 2
+                        + 0.25 * ((po2_val - r_po2) / 1.5) ** 2
+                        + 0.10 * ((p_val - r["pressure_psi"]) / 4.0) ** 2
+                        + 0.40 * ((v_val - r["airflow_cm_s"]) / 5.0) ** 2
+                    )
+                    sim = 100.0 / (1.0 + dist_sq)
+                    if sim > max_support:
+                        max_support = sim
+                row_scores.append(round(max_support, 2))
+            z_grid.append(row_scores)
+
+        fig = go.Figure()
+
+        # Direct two-color smooth gradient (Warm Amber -> Sky Cyan, no white stop)
+        fig.add_trace(
+            go.Heatmap(
+                x=x_grid,
+                y=y_grid,
+                z=z_grid,
+                zsmooth="best",
+                zmin=0,
+                zmax=100,
+                colorscale=[
+                    [0.0, "#fde68a"],  # Warm amber: untested extrapolation regime
+                    [1.0, "#38bdf8"],  # Sky cyan: high empirical NASA PSI support
+                ],
+                colorbar=dict(
+                    title=dict(text="Empirical<br>Support %", font=dict(size=10, color="#334155")),
+                    thickness=12,
+                    len=0.82,
+                    tickfont=dict(size=9, color="#334155"),
+                ),
+                hovertemplate=(
+                    "O₂: %{x:.1f}%<br>"
+                    + y_axis_choice.split(" (")[0]
+                    + ": %{y:.1f}<br>PSI Data Support: %{z:.1f}%<extra></extra>"
+                ),
+                showscale=True,
+            )
+        )
+
+        # Planned Lunar / Martian Habitat Zone (>= 30% O2)
+        y_max_bound = 32.0 if y_field == "airflow_cm_s" else 10.2
+        y_min_bound = 0.0 if y_field == "airflow_cm_s" else 4.0
+        fig.add_shape(
+            type="rect",
+            x0=30.0,
+            x1=56.0,
+            y0=y_min_bound,
+            y1=y_max_bound,
+            fillcolor="rgba(255, 255, 255, 0.0)",
+            line=dict(color="rgba(15, 23, 42, 0.55)", width=1.5, dash="dash"),
+        )
+        fig.add_annotation(
+            x=43.0,
+            y=y_max_bound * 0.94,
+            text="Exploration Habitat Zone (≥30% O₂)",
+            showarrow=False,
+            font=dict(color="#0f172a", size=11),
+        )
+
+        # Plot ONLY the Top-5 Selected Best Datapoints
         outcome_colors = {
             "Ignited - Sustained Spread": "#dc2626",
             "Ignited - Self-Extinguished": "#d97706",
@@ -560,76 +702,39 @@ with col_stage:
             "ACME-BRE": "diamond",
         }
 
-        fig = go.Figure()
-
-        # Shaded Planned Lunar / Martian Habitat Zone (>= 30% O2)
-        y_max_bound = 32 if y_field == "airflow_cm_s" else 10.2
-        y_min_bound = 0 if y_field == "airflow_cm_s" else 4.0
-        fig.add_shape(
-            type="rect",
-            x0=30.0,
-            x1=56.0,
-            y0=y_min_bound,
-            y1=y_max_bound,
-            fillcolor="rgba(2, 132, 199, 0.07)",
-            line=dict(color="rgba(2, 132, 199, 0.45)", width=1.5, dash="dot"),
-            layer="below",
-        )
-        fig.add_annotation(
-            x=43.0,
-            y=y_max_bound * 0.93,
-            text="Exploration Habitat Zone (≥30% O₂)",
-            showarrow=False,
-            font=dict(color="#0369a1", size=11),
-        )
-
-        # Plot PSI records grouped by outcome
+        ranked_runs = list(enumerate(top_runs, start=1))
         for outcome, color in outcome_colors.items():
-            sub = [r for r in unique_records if r["outcome"] == outcome]
+            sub = [(idx, r) for idx, r in ranked_runs if r["outcome"] == outcome]
             if not sub:
                 continue
-            symbols = [inv_symbols.get(r["investigation_id"], "circle") for r in sub]
+            symbols = [inv_symbols.get(r["investigation_id"], "circle") for _, r in sub]
             hover_texts = [
-                f"<b>{r['investigation_id']} | {r['test_id']}</b><br>"
+                f"<b>Rank #{idx} · {r['investigation_id']} | {r['test_id']}</b><br>"
+                f"Similarity Match: <b>{r['relevance_score']}%</b><br>"
                 f"Material: {r['material']} ({r['thickness_mm']} mm)<br>"
                 f"O₂: {r['o2_percent']}% | P: {r['pressure_psi']} psi | V: {r['airflow_cm_s']} cm/s<br>"
                 f"Flow: {r['flow_direction']} | Outcome: {r['outcome']}<br>"
                 f"0g Spread: {r['flame_spread_rate_mm_s']} mm/s | 1g Base: {r['earth_1g_baseline_spread_mm_s']} mm/s"
-                for r in sub
+                for idx, r in sub
             ]
             fig.add_trace(
                 go.Scatter(
-                    x=[r["o2_percent"] for r in sub],
-                    y=[r[y_field] for r in sub],
-                    mode="markers",
+                    x=[r["o2_percent"] for _, r in sub],
+                    y=[r[y_field] for _, r in sub],
+                    mode="markers+text",
                     name=outcome.replace("Ignited - ", ""),
+                    text=[f"#{idx}" for idx, _ in sub],
+                    textposition="bottom center",
+                    textfont=dict(size=10, color="#0f172a", family="sans-serif"),
                     marker=dict(
-                        size=10,
+                        size=14,
                         color=color,
                         symbol=symbols,
-                        line=dict(width=1, color="#ffffff"),
-                        opacity=0.90,
+                        line=dict(width=2, color="#ffffff"),
+                        opacity=0.98,
                     ),
                     hovertext=hover_texts,
                     hoverinfo="text",
-                )
-            )
-
-        # Selection Halo around the Top-5 Matched Runs driving the current score
-        if top_runs:
-            fig.add_trace(
-                go.Scatter(
-                    x=[r["o2_percent"] for r in top_runs],
-                    y=[r[y_field] for r in top_runs],
-                    mode="markers",
-                    name="Top-5 Matched Analogs",
-                    marker=dict(
-                        size=17,
-                        color="rgba(2, 132, 199, 0.08)",
-                        symbol="circle",
-                        line=dict(width=2, color="#0284c7"),
-                    ),
-                    hoverinfo="skip",
                 )
             )
 
@@ -642,12 +747,12 @@ with col_stage:
                 name="Target Habitat",
                 text=["TARGET"],
                 textposition="top center",
-                textfont=dict(color="#0284c7", size=11, family="sans-serif"),
+                textfont=dict(color="#0f172a", size=11, family="sans-serif"),
                 marker=dict(
                     size=18,
-                    color="#0284c7",
+                    color="#0f172a",
                     symbol="cross-thin",
-                    line=dict(width=3, color="#0284c7"),
+                    line=dict(width=3, color="#0f172a"),
                 ),
                 hovertemplate=(
                     f"<b>Target Habitat</b><br>O₂: {st.session_state.o2}%<br>"
@@ -660,19 +765,19 @@ with col_stage:
             height=305,
             margin=dict(l=10, r=10, t=8, b=8),
             paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="#ffffff",
+            plot_bgcolor="#fde68a",
             font=dict(color="#0f172a", size=11),
             xaxis=dict(
                 title="Oxygen Mole Fraction (%)",
                 range=[17, 56],
-                gridcolor="#e2e8f0",
+                showgrid=False,
                 linecolor="#cbd5e1",
                 zeroline=False,
             ),
             yaxis=dict(
                 title=y_axis_choice,
-                range=[-1, 32] if y_field == "airflow_cm_s" else [3.5, 16.0],
-                gridcolor="#e2e8f0",
+                range=[y_min_axis, y_max_axis],
+                showgrid=False,
                 linecolor="#cbd5e1",
                 zeroline=False,
             ),
@@ -687,9 +792,8 @@ with col_stage:
         )
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         st.caption(
-            "Shapes: ● BASS / BASS-II (Small-Scale) &nbsp;|&nbsp; "
-            "■ Saffire (Vehicle-Scale) &nbsp;|&nbsp; ◆ ACME-BRE (Gaseous Proxy) &nbsp;|&nbsp; "
-            "⭕ Blue Ring = Active Top-5 Matched Analogs"
+            "Top-5 Matched Analogs (#1–#5) over Empirical PSI Data Manifold (Cyan = Tested Regime, Amber = Extrapolation) &nbsp;|&nbsp; "
+            "Shapes: ● BASS / BASS-II &nbsp; ■ Saffire &nbsp; ◆ ACME-BRE"
         )
 
     # 3. Compact Partial-Gravity Bounding Envelope & #1 Analog Verdict
@@ -718,7 +822,6 @@ with col_stage:
             unsafe_allow_html=True,
         )
 
-        # #1 Top Analog Verdict Callout
         if top_runs:
             best = top_runs[0]
             outcome_cls = (
